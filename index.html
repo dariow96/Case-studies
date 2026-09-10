@@ -546,6 +546,7 @@
       customCursor.style.top = e.clientY + 'px';
 // Site-Wide Hover Intercept: Hides cursor over any clickable element instantly
       if (
+       e.target !== customCursor && (
         e.target.closest('a') || 
         e.target.closest('button') || 
         e.target.closest('.case-study-btn') || 
