@@ -492,28 +492,30 @@
 <div id="dynamic-cursor" class="custom-arrow-cursor">&gt;</div>
 
 
-  <!-- ==========================================
-       JAVASCRIPT DYNAMIC MOTOR ENGINE
+   <!-- ==========================================
+       JAVASCRIPT DYNAMIC MOTOR ENGINE (REPAIRED)
        ========================================== -->
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('grid-container');
-  const cards = document.querySelectorAll('.interactive-card');
-  const customCursor = document.getElementById('dynamic-cursor');
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('grid-container');
+      const cards = document.querySelectorAll('.interactive-card');
+      const customCursor = document.getElementById('dynamic-cursor');
 
-  cards.forEach(card => {
-    const openBtn = card.querySelector('.case-study-btn');
-    const backBtn = card.querySelector('.back-btn');
-    const pages = card.querySelectorAll('.case-page');
-    const actionRow = card.querySelector('.case-study-actions');
-    
-    let currentStep = 0;
-    let isMouseOnLeft = false;
+      cards.forEach(card => {
+        const openBtn = card.querySelector('.case-study-btn');
+        const backBtn = card.querySelector('.back-btn');
+        const crossBtn = card.querySelector('.close-cross-btn');
+        const pages = card.querySelectorAll('.case-page');
+        const actionRow = card.querySelector('.case-study-actions');
+        
+        let currentStep = 0;
+        let isMouseOnLeft = false;
 
-            // Synchronize active slides, side arrows, and progress bar calculations
-    function renderStep() {
+        // Handles slide visibility, arrows look, and progress bar width updates
+        function renderStep() {
           if (pages.length === 0) return;
 
+          // 1. Manage visible slide class
           pages.forEach((page, index) => {
             if (index === currentStep) {
               page.classList.add('active');
@@ -522,133 +524,117 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           });
 
-          // NEW PROGRESS BAR CALCULATION LOGIC
+          // 2. Dynamic Progress Bar Calculations
           const progressBar = card.querySelector('.case-progress-bar');
           if (progressBar) {
-            // Calculates percentage linearly: Step 0 = 0%, Step 3 = 100%
             const progressPercentage = (currentStep / (pages.length - 1)) * 100;
             progressBar.style.width = progressPercentage + '%';
           }
 
-          // Force call-to-actions row visibility to only pop open on Slide 4
+          // 3. Force bottom actions row to only display on the final slide
           if (actionRow) {
             actionRow.style.display = (currentStep === pages.length - 1) ? 'flex' : 'none';
           }
           
-          // Update cursor icon bounds instantly when page index shifts
+          // 4. Recalculate pointer display properties
           updateCursorLook();
         }
 
+        // Dynamic edge tracking transparency dimming states engine
+        function updateCursorLook() {
+          if (!card.classList.contains('expanded') || !customCursor) return;
+          
+          customCursor.style.display = 'block';
 
-      // Show call-to-action link panel strictly on Slide 4
-      if (actionRow) {
-        actionRow.style.display = (currentStep === pages.length - 1) ? 'flex' : 'none';
-      }
-      
-      // Update cursor icon bounds instantly when page index shifts
-      updateCursorLook();
-    }
-
-    // Dynamic cursor helper that handles boundary evaluations
-    function updateCursorLook() {
-      if (!card.classList.contains('expanded')) return;
-      
-      // Ensure cursor is always display: block when inside an expanded card
-      customCursor.style.display = 'block';
-
-      if (isMouseOnLeft) {
-        customCursor.textContent = '<';
-        if (currentStep === 0) {
-          customCursor.style.opacity = '0.15'; // Dimmed out look on slide 1 left side
-        } else {
-          customCursor.style.opacity = '1';
+          if (isMouseOnLeft) {
+            customCursor.textContent = '<';
+            customCursor.style.opacity = (currentStep === 0) ? '0.15' : '1';
+          } else {
+            customCursor.textContent = '>';
+            customCursor.style.opacity = (currentStep === pages.length - 1) ? '0.15' : '1';
+          }
         }
-      } else {
-        customCursor.textContent = '>';
-        if (currentStep === pages.length - 1) {
-          customCursor.style.opacity = '0.15'; // Dimmed out look on final slide right side
-        } else {
-          customCursor.style.opacity = '1';
+
+        // Standard card contraction functional routine
+        function closeCard() {
+          if (customCursor) customCursor.style.display = 'none';
+          card.classList.remove('expanded');
+          container.classList.remove('card-expanded');
         }
-      }
-    }
 
-    // EXPAND CARD CLICK
-    openBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      currentStep = 0; 
-      renderStep();
-      container.classList.add('card-expanded');
-      card.classList.add('expanded');
-    });
+        // EXPAND CARD EVENTS (Safely isolated)
+        if (openBtn) {
+          openBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentStep = 0; 
+            renderStep();
+            container.classList.add('card-expanded');
+            card.classList.add('expanded');
+          });
+        }
 
-    // CLOSE CARD / CHOOSE EXIT (Triggers via Bottom Back button OR Top Cross button)
-    const exitButtons = [backBtn, card.querySelector('.close-cross-btn')];
-    
-    exitButtons.forEach(btn => {
-      if (!btn) return;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        customCursor.style.display = 'none'; // Kill custom arrow cursor instantly
-        card.classList.remove('expanded');
-        container.classList.remove('card-expanded');
+        // MINIMIZE VIEWS TRIGGER EVENTS (Safely mapped individually)
+        if (backBtn) {
+          backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCard();
+          });
+        }
+
+        if (crossBtn) {
+          crossBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCard();
+          });
+        }
+
+        // MOUSE POINTER AND SLIDE TAP TRACKING ENGINE
+        card.addEventListener('mousemove', (e) => {
+          if (!card.classList.contains('expanded') || !customCursor) return;
+
+          customCursor.style.left = e.clientX + 'px';
+          customCursor.style.top = e.clientY + 'px';
+
+          const rect = card.getBoundingClientRect();
+          const relativeX = e.clientX - rect.left;
+          isMouseOnLeft = (relativeX < rect.width / 2);
+          
+          // Don't draw arrows directly above buttons or the cross button area
+          if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) {
+            customCursor.style.display = 'none';
+          } else {
+            updateCursorLook();
+          }
+        });
+
+        card.addEventListener('mouseleave', () => {
+          if (customCursor) customCursor.style.display = 'none';
+        });
+
+        // FULL SURFACE TAP CONTROLLER
+        card.addEventListener('click', (e) => {
+          if (!card.classList.contains('expanded')) return;
+          
+          // Stop surface navigation if user clicks buttons or cross
+          if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) return;
+
+          if (isMouseOnLeft) {
+            if (currentStep > 0) {
+              currentStep--;
+              renderStep();
+            }
+          } else {
+            if (currentStep < pages.length - 1) {
+              currentStep++;
+              renderStep();
+            }
+          }
+        });
+
       });
     });
-
-
-    // POINTER TRACKING INTERACTIVE SYSTEM
-    card.addEventListener('mousemove', (e) => {
-      if (!card.classList.contains('expanded')) return;
-
-      // Position the text overlay right over the mouse pointer point
-      customCursor.style.left = e.clientX + 'px';
-      customCursor.style.top = e.clientY + 'px';
-
-      // Evaluate card screen width splitting coordinates
-      const rect = card.getBoundingClientRect();
-      const relativeX = e.clientX - rect.left;
-      
-      // True if cursor is over the left 50% of the active card area
-      isMouseOnLeft = (relativeX < rect.width / 2);
-      
-      // Safety check: if hovering links or actions, let normal cursor return
-      if (e.target.closest('.case-study-actions')) {
-        customCursor.style.display = 'none';
-      } else {
-        updateCursorLook();
-      }
-    });
-
-    // Hides arrow if cursor completely leaves the active card layout zone
-    card.addEventListener('mouseleave', () => {
-      customCursor.style.display = 'none';
-    });
-
-    // FULL CANVAS SURFACE CLICK NAVIGATION CONTROLLER
-    card.addEventListener('click', (e) => {
-      if (!card.classList.contains('expanded')) return;
-      
-      // Let standard links and buttons handle their native clicks
-      if (e.target.closest('.case-study-actions')) return;
-
-      if (isMouseOnLeft) {
-        // Go back sequence
-        if (currentStep > 0) {
-          currentStep--;
-          renderStep();
-        }
-      } else {
-        // Advance sequence
-        if (currentStep < pages.length - 1) {
-          currentStep++;
-          renderStep();
-        }
-      }
-    });
-
-  });
-});
-</script>
+  </script>
 </body>
 </html>
