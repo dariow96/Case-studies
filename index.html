@@ -213,46 +213,6 @@
     }
 
     /* ==========================================================================
-       EDGE-ALIGNED NAVIGATION ARROWS (MATHEMATICALLY CENTERED)
-       ========================================================================== */
-    .linear-nav-bar {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      pointer-events: none;
-      z-index: 10;
-    }
-    
-    .linear-nav-arrow {
-      pointer-events: auto;
-      font-size: 2.5rem;
-      font-weight: 900;
-      font-family: sans-serif;
-      color: rgba(255, 255, 255, 0.4);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-    
-    .linear-nav-arrow:hover {
-      color: #ffffff;
-      transform: scale(1.15);
-    }
-    
-    .linear-nav-arrow:disabled {
-      visibility: hidden; /* Drops out of layout securely when out of steps */
-    }
-    
-    .linear-nav-arrow.prev { margin-left: -5px; }
-    .linear-nav-arrow.next { margin-right: -5px; }
-
-    /* ==========================================================================
        CONVERSION LINK ACTION ROW
        ========================================================================== */
     .case-study-actions {
@@ -303,6 +263,38 @@
       .linear-nav-bar { width: 100%; position: static; transform: none; margin-top: 20px; padding: 0 20px; box-sizing: border-box; }
       .case-study-actions { flex-direction: column; padding: 0 20px; }
     }
+
+/* Allow the active expanded card content to handle full-surface cursor hover tracking */
+.interactive-card.expanded {
+  cursor: none !important; /* Hides default cursor inside open case study */
+}
+
+/* Force children to drop cursors as well so the pointer never returns */
+.interactive-card.expanded * {
+  cursor: none !important;
+}
+
+/* Re-allow custom cursors specifically on links/buttons inside slide 4 actions */
+.case-study-actions, .case-study-actions * {
+  cursor: auto !important;
+}
+
+/* The dynamic floating screen arrow cursor wrapper */
+.custom-arrow-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* Let clicks pass right through to the card container */
+  z-index: 99999; /* Float over absolutely everything */
+  font-size: 2.8rem;
+  font-weight: 900;
+  font-family: sans-serif;
+  color: #ffffff;
+  mix-blend-mode: difference; /* Highly premium: flips color over dark/light spots */
+  transform: translate(-50%, -50%); /* Centers the arrow character directly on the pointer point */
+  display: none; /* Invisible by default, managed dynamically by JS */
+}
+
   </style>
 </head>
 <body>
@@ -320,10 +312,6 @@
         </div>
 
         <div class="case-study-detail">
-          <div class="linear-nav-bar">
-            <button class="linear-nav-arrow prev">&#60;</button>
-            <button class="linear-nav-arrow next">&#62;</button>
-          </div>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
@@ -361,10 +349,6 @@
         </div>
 
         <div class="case-study-detail">
-          <div class="linear-nav-bar">
-            <button class="linear-nav-arrow prev">&#60;</button>
-            <button class="linear-nav-arrow next">&#62;</button>
-          </div>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
@@ -402,10 +386,6 @@
         </div>
 
         <div class="case-study-detail">
-          <div class="linear-nav-bar">
-            <button class="linear-nav-arrow prev">&#60;</button>
-            <button class="linear-nav-arrow next">&#62;</button>
-          </div>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
