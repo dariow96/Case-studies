@@ -189,6 +189,8 @@
       display: none;
       opacity: 0;
       padding: 0 45px; /* Clean content layout frame padding bounds */
+      user-select: none !important; 
+      -webkit-user-select: none !important;
     }
     
     .case-page.active {
@@ -461,21 +463,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCursorLook() {
       if (!card.classList.contains('expanded')) return;
       
+      // Ensure cursor is always display: block when inside an expanded card
+      customCursor.style.display = 'block';
+
       if (isMouseOnLeft) {
-        // Left side boundary checks
+        customCursor.textContent = '<';
         if (currentStep === 0) {
-          customCursor.style.display = 'none'; // Hide if there's no slide to go back to
+          customCursor.style.opacity = '0.15'; // Dimmed out look on slide 1 left side
         } else {
-          customCursor.textContent = '<';
-          customCursor.style.display = 'block';
+          customCursor.style.opacity = '1';
         }
       } else {
-        // Right side boundary checks
+        customCursor.textContent = '>';
         if (currentStep === pages.length - 1) {
-          customCursor.style.display = 'none'; // Hide if there's no slide to go forward to
+          customCursor.style.opacity = '0.15'; // Dimmed out look on final slide right side
         } else {
-          customCursor.textContent = '>';
-          customCursor.style.display = 'block';
+          customCursor.style.opacity = '1';
         }
       }
     }
