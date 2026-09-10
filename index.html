@@ -557,17 +557,28 @@
       }
 
       // 2. EVALUATION: User is actively hovering inside an expanded case study panel view
-      const rect = activeCard.getBoundingClientRect();
-      const relativeX = e.clientX - rect.left;
-      isMouseOnLeft = (relativeX < rect.width / 2);
+          // 2. EVALUATION: User is actively hovering inside an expanded case study panel view
+    const rect = activeCard.getBoundingClientRect();
+    const relativeX = e.clientX - rect.left;
+    isMouseOnLeft = (relativeX < rect.width / 2);
 
-      // Hide custom cursor elements if pointer floats over action links or close cross buttons
-        if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn') || e.target.closest('a') || e.target.closest('button') || e.target.closest('.case-study-btn')) {
-        customCursor.style.display = 'none';
-      } else {
-        customCursor.style.display = 'block';
-        
-        const pages = activeCard.querySelectorAll('.case-page');
+    // Bulletproof click hover check: Hides cursor if over any link, button, or template item
+    if (
+      e.target.closest('a') || 
+      e.target.closest('button') || 
+      e.target.closest('.case-study-btn') || 
+      e.target.closest('.close-cross-btn') || 
+      e.target.closest('.action-btn') ||
+      e.target.closest('.sqs-block-button-element') || 
+      e.target.closest('[role="button"]') ||          
+      window.getComputedStyle(e.target).cursor === 'pointer'
+    ) {
+      customCursor.style.display = 'none';
+    } else {
+      customCursor.style.display = 'block';
+      
+      const pages = activeCard.querySelectorAll('.case-page');
+
         const currentStep = parseInt(activeCard.getAttribute('data-current-step') || '0');
 
         if (isMouseOnLeft) {
