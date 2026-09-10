@@ -521,7 +521,7 @@
       const pages = card.querySelectorAll('.case-page');
       const actionRow = card.querySelector('.case-study-actions');
 
-      function renderStep() {
+            function renderStep() {
         if (pages.length === 0) return;
         
         const currentStep = parseInt(card.getAttribute('data-current-step') || '0');
@@ -534,7 +534,7 @@
           }
         });
 
-                const progressBar = card.querySelector('.case-progress-bar');
+        const progressBar = card.querySelector('.case-progress-bar');
         if (progressBar) {
           const progressPercentage = (currentStep / (pages.length - 1)) * 100;
           progressBar.style.width = progressPercentage + '%';
