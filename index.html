@@ -320,6 +320,35 @@
   /* High-performance fluid growth physics transition */
   transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
 }
+/* ==========================================================================
+   TOP RIGHT CLOSE CROSS BUTTON
+   ========================================================================== */
+.close-cross-btn {
+  position: absolute;
+  top: -20px;            /* Elevates it slightly above your text headers */
+  right: 0px;           /* Snaps it cleanly to the right-hand boundary edge */
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 2.2rem;    /* Large, sharp modern scale profile */
+  font-weight: 300;     /* Elegant slim stroke thickness */
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2000;        /* Ensures it floats safely on top of all text layers */
+  transition: color 0.3s ease, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Premium Hover feedback transitions */
+.close-cross-btn:hover {
+  color: #ffffff;
+  transform: rotate(90deg) scale(1.1); /* High-end studio mechanical rotation interaction */
+}
+
+/* Re-allow native pointer interactions over the close cross so it overrides the arrow cursor */
+.interactive-card.expanded .close-cross-btn {
+  cursor: pointer !important;
+}
 
   </style>
 </head>
@@ -338,6 +367,8 @@
         </div>
 
         <div class="case-study-detail">
+          <!-- Top Right Close Cross Button -->
+          <button class="close-cross-btn" aria-label="Close Case Study">&times;</button>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
@@ -380,6 +411,8 @@
         </div>
 
         <div class="case-study-detail">
+          <!-- Top Right Close Cross Button -->
+          <button class="close-cross-btn" aria-label="Close Case Study">&times;</button>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
@@ -421,6 +454,8 @@
         </div>
 
         <div class="case-study-detail">
+          <!-- Top Right Close Cross Button -->
+          <button class="close-cross-btn" aria-label="Close Case Study">&times;</button>
           <div class="slides-window">
             <div class="case-page active">
               <h2>Summary and Overview</h2>
@@ -547,13 +582,20 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('expanded');
     });
 
-    // CLOSE CARD / BACK BUTTON CLICK
-    backBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      customCursor.style.display = 'none'; // Kill custom cursor view instantly
-      card.classList.remove('expanded');
-      container.classList.remove('card-expanded');
+    // CLOSE CARD / CHOOSE EXIT (Triggers via Bottom Back button OR Top Cross button)
+    const exitButtons = [backBtn, card.querySelector('.close-cross-btn')];
+    
+    exitButtons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        customCursor.style.display = 'none'; // Kill custom arrow cursor instantly
+        card.classList.remove('expanded');
+        container.classList.remove('card-expanded');
+      });
     });
+
 
     // POINTER TRACKING INTERACTIVE SYSTEM
     card.addEventListener('mousemove', (e) => {
