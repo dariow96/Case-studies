@@ -451,6 +451,9 @@
 
 <div id="dynamic-cursor">&gt;</div>
 
+<!-- ==========================================================================
+     JAVASCRIPT DYNAMIC MOTOR ENGINE (COMPLETE SANITIZED EDITION)
+     ========================================================================== -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('grid-container');
@@ -460,7 +463,7 @@
     let activeCard = null; 
     let isMouseOnLeft = false;
 
-    // Universal coordinate synchronization engine tracking loops
+    // Track global window mouse movements for site-wide pointer placement
     window.addEventListener('mousemove', (e) => {
       if (!customCursor) return;
 
@@ -468,7 +471,7 @@
       customCursor.style.left = e.clientX + 'px';
       customCursor.style.top = e.clientY + 'px';
 
-      // 1. GLOBAL INTERCEPT HOVER ENGINE RESET
+      // 1. GLOBAL INTERCEPT HOVER ENGINE RESET (Forces cursor to vanish over links/buttons)
       if (
         e.target !== customCursor && (
           e.target.closest('a') || 
@@ -483,7 +486,7 @@
         return;
       }
 
-      // 2. STANDARD STATE (Tilted -135deg facing upper-left corner)
+      // 2. DEFAULT STATE (Tilted -135deg facing upper-left corner)
       if (!activeCard) {
         customCursor.textContent = '>'; 
         customCursor.style.transform = 'rotate(-135deg)'; 
@@ -521,7 +524,7 @@
       const pages = card.querySelectorAll('.case-page');
       const actionRow = card.querySelector('.case-study-actions');
 
-            function renderStep() {
+      function renderStep() {
         if (pages.length === 0) return;
         
         const currentStep = parseInt(card.getAttribute('data-current-step') || '0');
