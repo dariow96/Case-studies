@@ -551,7 +551,7 @@
         customCursor.textContent = '>'; // Set caret character structure
         
         // Rotates the character 45 degrees counter-clockwise so it points perfectly top-left
-        customCursor.style.transform = 'translate(-50%, -50%) rotate(135deg)'; 
+        customCursor.style.transform = 'translate(-50%, -50%) rotate(-135deg)'; 
         customCursor.style.opacity = '1';
         return;
       }
@@ -562,7 +562,7 @@
       isMouseOnLeft = (relativeX < rect.width / 2);
 
       // Hide custom cursor elements if pointer floats over action links or close cross buttons
-      if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) {
+        if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn') || e.target.closest('a') || e.target.closest('button') || e.target.closest('.case-study-btn')) {
         customCursor.style.display = 'none';
       } else {
         customCursor.style.display = 'block';
