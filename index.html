@@ -296,6 +296,30 @@
   transform: translate(-50%, -50%); /* Centers the arrow character directly on the pointer point */
   display: none; /* Invisible by default, managed dynamically by JS */
 }
+/* ==========================================================================
+   DYNAMIC STYLIZED PROGRESS BAR TRACKER
+   ========================================================================== */
+.case-progress-container {
+  width: calc(100% - 90px); /* Perfectly aligns with your .case-page padding margins */
+  height: 2px;               /* Ultra-sleek premium slim line profile */
+  background: rgba(255, 255, 255, 0.1); /* Subtle dark rail indicator */
+  margin: 40px auto 0 auto;  /* Spaces the track nicely between content and bottom actions */
+  position: relative;
+  overflow: hidden;
+}
+
+.case-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%; /* Managed dynamically by JavaScript */
+  background: #ffffff; /* Crisp white fluid indicator line */
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Slight high-end glowing aura */
+  
+  /* High-performance fluid growth physics transition */
+  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
+}
 
   </style>
 </head>
@@ -332,6 +356,11 @@
               <p>Present your final project outcomes or industry metrics. Your client can now understand complex engineering models before production lines even open.</p>
             </div>
           </div>
+          <!-- Dynamic Stylized Progress Bar Tracker -->
+           <div class="case-progress-container">
+            <div class="case-progress-bar"></div>
+          </div>
+
           <div class="case-study-actions">
             <a href="https://www.r25media.com/projectconfigurator" class="action-btn estimator-btn" target="_blank">Personalized Project Estimator</a>
             <button class="action-btn back-btn">Back</button>
@@ -368,6 +397,10 @@
               <h2>The Impact</h2>
               <p>Showcase your visual milestones: accelerated turnaround speeds, 40% reduction in rendering pipeline overhead, and broadcast-ready cinematic fidelity.</p>
             </div>
+          </div>
+          <!-- Dynamic Stylized Progress Bar Tracker -->
+          <div class="case-progress-container">
+            <div class="case-progress-bar"></div>
           </div>
           <div class="case-study-actions">
             <a href="https://www.r25media.com/projectconfigurator" class="action-btn estimator-btn" target="_blank">Personalized Project Estimator</a>
@@ -407,6 +440,10 @@
             </div>
           </div>
           <div class="case-study-actions">
+          <!-- Dynamic Stylized Progress Bar Tracker -->
+          <div class="case-progress-container">
+            <div class="case-progress-bar"></div>
+          </div>
             <a href="https://www.r25media.com/projectconfigurator" class="action-btn estimator-btn" target="_blank">Personalized Project Estimator</a>
             <button class="action-btn back-btn">Back</button>
           </div>
@@ -438,17 +475,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 0;
     let isMouseOnLeft = false;
 
-    // Handles slide display changes
+            // Synchronize active slides, side arrows, and progress bar calculations
     function renderStep() {
-      if (pages.length === 0) return;
+          if (pages.length === 0) return;
 
-      pages.forEach((page, index) => {
-        if (index === currentStep) {
-          page.classList.add('active');
-        } else {
-          page.classList.remove('active');
+          pages.forEach((page, index) => {
+            if (index === currentStep) {
+              page.classList.add('active');
+            } else {
+              page.classList.remove('active');
+            }
+          });
+
+          // NEW PROGRESS BAR CALCULATION LOGIC
+          const progressBar = card.querySelector('.case-progress-bar');
+          if (progressBar) {
+            // Calculates percentage linearly: Step 0 = 0%, Step 3 = 100%
+            const progressPercentage = (currentStep / (pages.length - 1)) * 100;
+            progressBar.style.width = progressPercentage + '%';
+          }
+
+          // Force call-to-actions row visibility to only pop open on Slide 4
+          if (actionRow) {
+            actionRow.style.display = (currentStep === pages.length - 1) ? 'flex' : 'none';
+          }
+          
+          // Update cursor icon bounds instantly when page index shifts
+          updateCursorLook();
         }
-      });
+
 
       // Show call-to-action link panel strictly on Slide 4
       if (actionRow) {
