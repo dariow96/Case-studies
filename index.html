@@ -544,42 +544,36 @@
       // Constantly lock custom text position directly to pixel coordinates
       customCursor.style.left = e.clientX + 'px';
       customCursor.style.top = e.clientY + 'px';
-
+// Site-Wide Hover Intercept: Hides cursor over any clickable element instantly
+      if (
+        e.target.closest('a') || 
+        e.target.closest('button') || 
+        e.target.closest('.case-study-btn') || 
+        e.target.closest('.close-cross-btn') || 
+        e.target.closest('.action-btn') ||
+        window.getComputedStyle(e.target).cursor === 'pointer'
+      ) {
+        customCursor.style.display = 'none';
+        return;
+      }
       // 1. EVALUATION: User is currently browsing the site normally (or card is closed)
       if (!activeCard) {
         customCursor.style.display = 'block';
         customCursor.textContent = '>'; // Set caret character structure
-        
-        // Rotates the character 45 degrees counter-clockwise so it points perfectly top-left
         customCursor.style.transform = 'translate(-50%, -50%) rotate(-135deg)'; 
         customCursor.style.opacity = '1';
         return;
       }
-
-      // 2. EVALUATION: User is actively hovering inside an expanded case study panel view
-          // 2. EVALUATION: User is actively hovering inside an expanded case study panel view
+      
+  // Expanded Slides View State: Swivels flat dynamically based on side boundaries
+      customCursor.style.display = 'block';
+      
     const rect = activeCard.getBoundingClientRect();
     const relativeX = e.clientX - rect.left;
     isMouseOnLeft = (relativeX < rect.width / 2);
-
-    // Bulletproof click hover check: Hides cursor if over any link, button, or template item
-    if (
-      e.target.closest('a') || 
-      e.target.closest('button') || 
-      e.target.closest('.case-study-btn') || 
-      e.target.closest('.close-cross-btn') || 
-      e.target.closest('.action-btn') ||
-      e.target.closest('.sqs-block-button-element') || 
-      e.target.closest('[role="button"]') ||          
-      window.getComputedStyle(e.target).cursor === 'pointer'
-    ) {
-      customCursor.style.display = 'none';
-    } else {
-      customCursor.style.display = 'block';
       
-      const pages = activeCard.querySelectorAll('.case-page');
-
-        const currentStep = parseInt(activeCard.getAttribute('data-current-step') || '0');
+  const pages = activeCard.querySelectorAll('.case-page');
+  const currentStep = parseInt(activeCard.getAttribute('data-current-step') || '0');
 
         if (isMouseOnLeft) {
           customCursor.textContent = '<';
