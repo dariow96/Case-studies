@@ -281,21 +281,52 @@
   cursor: auto !important;
 }
 
-/* The dynamic floating screen arrow cursor wrapper */
-.custom-arrow-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none; /* Let clicks pass right through to the card container */
-  z-index: 99999; /* Float over absolutely everything */
-  font-size: 2.8rem;
-  font-weight: 900;
-  font-family: sans-serif;
-  color: #ffffff;
-  mix-blend-mode: difference; /* Highly premium: flips color over dark/light spots */
-  transform: translate(-50%, -50%); /* Centers the arrow character directly on the pointer point */
-  display: none; /* Invisible by default, managed dynamically by JS */
-}
+  /* ==========================================================================
+     SITE-WIDE CUSTOM FLOATING CHEVRON CURSOR STYLES (NEW OVERRIDE)
+     ========================================================================== */
+
+  /* 1. Hide the native browser cursor across the entire website */
+  html, body, a, button, label, select, input {
+    cursor: none !important;
+  }
+
+  /* Re-allow native navigation pointer over active inputs or standard fields if needed */
+  .case-study-actions, .case-study-actions * {
+    cursor: auto !important;
+  }
+
+  /* Universal floating custom cursor core tracking frame */
+  .custom-arrow-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none; /* Let clicks naturally pass straight down to the site elements */
+    z-index: 999999 !important; /* Force layout layering over absolutely everything */
+    font-size: 2.5rem; /* Re-balanced modern text scale */
+    font-weight: 900;
+    font-family: sans-serif;
+    color: #ffffff;
+    mix-blend-mode: difference; /* Highly premium chromatic color inversion engine */
+    line-height: 1;
+    display: block; /* Always visible on desktops */
+    
+    /* CRITICAL: Anchor transformation tracking center point directly to the chevron apex point */
+    transform-origin: 25% 45%; 
+    
+    /* Smoothly manage layout angle rotations over 0.2 seconds */
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease, color 0.2s ease;
+  }
+
+  /* Ensure the custom cursor drops out on mobile touch tablets/screens safely */
+  @media (max-width: 768px) {
+    html, body, a, button, label, select, input {
+      cursor: auto !important;
+    }
+    .custom-arrow-cursor {
+      display: none !important;
+    }
+  }
+
 /* ==========================================================================
    DYNAMIC STYLIZED PROGRESS BAR TRACKER
    ========================================================================== */
@@ -490,153 +521,168 @@
 
   </div> <!-- End of full-bleed-grid-container -->
   
-<!-- Custom Floating Text Cursor Hook Element -->
+<!-- PASTE THE NEW HOOK LINE DIRECTLY HERE -->
 <div id="dynamic-cursor" class="custom-arrow-cursor">&gt;</div>
 
 
-   <!-- ==========================================
-       JAVASCRIPT DYNAMIC MOTOR ENGINE (REPAIRED)
-       ========================================== -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('grid-container');
-      const cards = document.querySelectorAll('.interactive-card');
-      const customCursor = document.getElementById('dynamic-cursor');
+<!-- ==========================================================================
+     JAVASCRIPT DYNAMIC MOTOR ENGINE (TILTED CHEVRON UPGRADE)
+     ========================================================================== -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('grid-container');
+    const cards = document.querySelectorAll('.interactive-card');
+    const customCursor = document.getElementById('dynamic-cursor');
 
-      cards.forEach(card => {
-        const openBtn = card.querySelector('.case-study-btn');
-        const backBtn = card.querySelector('.back-btn');
-        const crossBtn = card.querySelector('.close-cross-btn');
-        const pages = card.querySelectorAll('.case-page');
-        const actionRow = card.querySelector('.case-study-actions');
+    let activeCard = null; // Dynamically tracks if a case study is currently expanded open
+    let isMouseOnLeft = false;
+
+    // Track global window mouse movements for site-wide pointer placement
+    window.addEventListener('mousemove', (e) => {
+      if (!customCursor) return;
+
+      // Constantly lock custom text position directly to pixel coordinates
+      customCursor.style.left = e.clientX + 'px';
+      customCursor.style.top = e.clientY + 'px';
+
+      // 1. EVALUATION: User is currently browsing the site normally (or card is closed)
+      if (!activeCard) {
+        customCursor.style.display = 'block';
+        customCursor.textContent = '>'; // Set caret character structure
         
-        let currentStep = 0;
-        let isMouseOnLeft = false;
+        // Rotates the character 45 degrees counter-clockwise so it points perfectly top-left
+        customCursor.style.transform = 'translate(-50%, -50%) rotate(-45deg)'; 
+        customCursor.style.opacity = '1';
+        return;
+      }
 
-        // Handles slide visibility, arrows look, and progress bar width updates
-        function renderStep() {
-          if (pages.length === 0) return;
+      // 2. EVALUATION: User is actively hovering inside an expanded case study panel view
+      const rect = activeCard.getBoundingClientRect();
+      const relativeX = e.clientX - rect.left;
+      isMouseOnLeft = (relativeX < rect.width / 2);
 
-          // 1. Manage visible slide class
-          pages.forEach((page, index) => {
-            if (index === currentStep) {
-              page.classList.add('active');
-            } else {
-              page.classList.remove('active');
-            }
-          });
+      // Hide custom cursor elements if pointer floats over action links or close cross buttons
+      if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) {
+        customCursor.style.display = 'none';
+      } else {
+        customCursor.style.display = 'block';
+        
+        const pages = activeCard.querySelectorAll('.case-page');
+        const currentStep = parseInt(activeCard.getAttribute('data-current-step') || '0');
 
-          // 2. Dynamic Progress Bar Calculations
-          const progressBar = card.querySelector('.case-progress-bar');
-          if (progressBar) {
-            const progressPercentage = (currentStep / (pages.length - 1)) * 100;
-            progressBar.style.width = progressPercentage + '%';
-          }
-
-          // 3. Force bottom actions row to only display on the final slide
-          if (actionRow) {
-            actionRow.style.display = (currentStep === pages.length - 1) ? 'flex' : 'none';
-          }
-          
-          // 4. Recalculate pointer display properties
-          updateCursorLook();
+        if (isMouseOnLeft) {
+          customCursor.textContent = '<';
+          // Reset rotation back to 0 degrees to function as a regular sliding navigation arrow
+          customCursor.style.transform = 'translate(-50%, -50%) rotate(0deg)'; 
+          customCursor.style.opacity = (currentStep === 0) ? '0.15' : '1';
+        } else {
+          customCursor.textContent = '>';
+          // Reset rotation back to 0 degrees to function as a regular sliding navigation arrow
+          customCursor.style.transform = 'translate(-50%, -50%) rotate(0deg)'; 
+          customCursor.style.opacity = (currentStep === pages.length - 1) ? '0.15' : '1';
         }
-
-        // Dynamic edge tracking transparency dimming states engine
-        function updateCursorLook() {
-          if (!card.classList.contains('expanded') || !customCursor) return;
-          
-          customCursor.style.display = 'block';
-
-          if (isMouseOnLeft) {
-            customCursor.textContent = '<';
-            customCursor.style.opacity = (currentStep === 0) ? '0.15' : '1';
-          } else {
-            customCursor.textContent = '>';
-            customCursor.style.opacity = (currentStep === pages.length - 1) ? '0.15' : '1';
-          }
-        }
-
-        // Standard card contraction functional routine
-        function closeCard() {
-          if (customCursor) customCursor.style.display = 'none';
-          card.classList.remove('expanded');
-          container.classList.remove('card-expanded');
-        }
-
-        // EXPAND CARD EVENTS (Safely isolated)
-        if (openBtn) {
-          openBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentStep = 0; 
-            renderStep();
-            container.classList.add('card-expanded');
-            card.classList.add('expanded');
-          });
-        }
-
-        // MINIMIZE VIEWS TRIGGER EVENTS (Safely mapped individually)
-        if (backBtn) {
-          backBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeCard();
-          });
-        }
-
-        if (crossBtn) {
-          crossBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeCard();
-          });
-        }
-
-        // MOUSE POINTER AND SLIDE TAP TRACKING ENGINE
-        card.addEventListener('mousemove', (e) => {
-          if (!card.classList.contains('expanded') || !customCursor) return;
-
-          customCursor.style.left = e.clientX + 'px';
-          customCursor.style.top = e.clientY + 'px';
-
-          const rect = card.getBoundingClientRect();
-          const relativeX = e.clientX - rect.left;
-          isMouseOnLeft = (relativeX < rect.width / 2);
-          
-          // Don't draw arrows directly above buttons or the cross button area
-          if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) {
-            customCursor.style.display = 'none';
-          } else {
-            updateCursorLook();
-          }
-        });
-
-        card.addEventListener('mouseleave', () => {
-          if (customCursor) customCursor.style.display = 'none';
-        });
-
-        // FULL SURFACE TAP CONTROLLER
-        card.addEventListener('click', (e) => {
-          if (!card.classList.contains('expanded')) return;
-          
-          // Stop surface navigation if user clicks buttons or cross
-          if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) return;
-
-          if (isMouseOnLeft) {
-            if (currentStep > 0) {
-              currentStep--;
-              renderStep();
-            }
-          } else {
-            if (currentStep < pages.length - 1) {
-              currentStep++;
-              renderStep();
-            }
-          }
-        });
-
-      });
+      }
     });
-  </script>
+
+    // Ensure cursor hides gracefully if mouse moves outside browser viewing borders
+    document.addEventListener('mouseleave', () => {
+      if (customCursor) customCursor.style.display = 'none';
+    });
+
+    // Loop independent functional logic sets mapping over each portfolio block item
+    cards.forEach(card => {
+      const openBtn = card.querySelector('.case-study-btn');
+      const backBtn = card.querySelector('.back-btn');
+      const crossBtn = card.querySelector('.close-cross-btn');
+      const pages = card.querySelectorAll('.case-page');
+      const actionRow = card.querySelector('.case-study-actions');
+
+      // Run layout slide alignment synchronization steps
+      function renderStep() {
+        if (pages.length === 0) return;
+        
+        const currentStep = parseInt(card.getAttribute('data-current-step') || '0');
+
+        pages.forEach((page, index) => {
+          if (index === currentStep) {
+            page.classList.add('active');
+          } else {
+            page.classList.remove('active');
+          }
+        });
+
+        const progressBar = card.querySelector('.case-progress-bar');
+        if (progressBar) {
+          const progressPercentage = (currentStep / (pages.length - 1)) * 100;
+          progressBar.style.width = progressPercentage + '%';
+        }
+
+        if (actionRow) {
+          actionRow.style.display = (currentStep === pages.length - 1) ? 'flex' : 'none';
+        }
+      }
+
+      // CARD EXPANSION TRIGGER
+      if (openBtn) {
+        openBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          card.setAttribute('data-current-step', '0'); // Initialize attribute step tracking index
+          renderStep();
+          container.classList.add('card-expanded');
+          card.classList.add('expanded');
+          activeCard = card; // Set global active tracking lock
+        });
+      }
+
+      // CONTRACT VIEW ENGINE ROUTINE
+      function closeCard() {
+        card.classList.remove('expanded');
+        container.classList.remove('card-expanded');
+        activeCard = null; // Release global tracking lock, returning to default tilted cursor look
+      }
+
+      if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+          e.preventDefault(); 
+          e.stopPropagation();
+          closeCard();
+        });
+      }
+
+      if (crossBtn) {
+        crossBtn.addEventListener('click', (e) => {
+          e.preventDefault(); 
+          e.stopPropagation();
+          closeCard();
+        });
+      }
+
+      // CORE SURFACES INTERACTION DIRECTIONAL SLIDE ROUTINE
+      card.addEventListener('click', (e) => {
+        if (!card.classList.contains('expanded')) return;
+        
+        // Prevent background step advancement if clicking links/cross actions
+        if (e.target.closest('.case-study-actions') || e.target.closest('.close-cross-btn')) return;
+
+        let currentStep = parseInt(card.getAttribute('data-current-step') || '0');
+
+        if (isMouseOnLeft) {
+          if (currentStep > 0) {
+            currentStep--;
+            card.setAttribute('data-current-step', currentStep.toString());
+            renderStep();
+          }
+        } else {
+          if (currentStep < pages.length - 1) {
+            currentStep++;
+            card.setAttribute('data-current-step', currentStep.toString());
+            renderStep();
+          }
+        }
+      });
+
+    });
+  });
+</script>
 </body>
 </html>
