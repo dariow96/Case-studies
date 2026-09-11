@@ -249,27 +249,36 @@
       cursor: none !important; /* Locks out old operating system hardware mouse graphics */
     }
 
-    #dynamic-cursor {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 40px !important;
-      height: 40px !important;
-      margin-top: -20px !important; /* Centers block box natively on active mouse tracking coordinates */
-      margin-left: -20px !important;
-      pointer-events: none !important; 
-      z-index: 99999999 !important; 
-      font-size: 2.5rem !important; 
-      font-weight: 900 !important;
-      font-family: sans-serif !important;
-      color: #ffffff !important;
-      mix-blend-mode: difference !important; 
-      line-height: 40px !important;
-      text-align: center !important;
-      display: block !important; 
-      transform-origin: center center !important; /* Perfect uniform structural rotational center alignment */
-      transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.15s ease, color 0.15s ease !important;
-    }
+#dynamic-cursor {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin-top: -20px !important;
+  margin-left: -20px !important;
+
+  pointer-events: none !important;
+  z-index: 99999999 !important;
+
+  font-size: 2.5rem !important;
+  font-weight: 900 !important;
+  font-family: sans-serif !important;
+  color: #ffffff !important;
+
+  mix-blend-mode: difference !important;
+  line-height: 40px !important;
+  text-align: center !important;
+
+  display: block !important;
+  opacity: 1;
+
+  transform-origin: center center !important;
+
+  transition:
+    transform 0.15s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.15s ease !important;
+}
 
     .case-study-actions {
       display: none; 
@@ -464,54 +473,71 @@
     let isMouseOnLeft = false;
 
     // Track global window mouse movements for site-wide pointer placement
-    window.addEventListener('mousemove', (e) => {
-      if (!customCursor) return;
+window.addEventListener('mousemove', (e) => {
+  if (!customCursor) return;
 
-      // Smooth coordinate calculation locking properties
-      customCursor.style.left = e.clientX + 'px';
-      customCursor.style.top = e.clientY + 'px';
+  // Always follow the physical mouse
+  customCursor.style.left = e.clientX + 'px';
+  customCursor.style.top = e.clientY + 'px';
 
-      // 1. GLOBAL INTERCEPT HOVER ENGINE RESET (Forces cursor to vanish over links/buttons)
-      if (
-        e.target !== customCursor && (
-          e.target.closest('a') || 
-          e.target.closest('button') || 
-          e.target.closest('.case-study-btn') || 
-          e.target.closest('.close-cross-btn') || 
-          e.target.closest('.action-btn') ||
-          window.getComputedStyle(e.target).cursor === 'pointer'
-        )
-      ) {
-        customCursor.style.opacity = '0'; // Disappear cleanly over interactive choices panels
-        return;
-      }
+  // --------------------------------------------------
+  // 1. HIDE CUSTOM CURSOR OVER CLICKABLE ELEMENTS
+  // --------------------------------------------------
 
-      // 2. DEFAULT STATE (Tilted -135deg facing upper-left corner)
-      if (!activeCard) {
-        customCursor.textContent = '>'; 
-        customCursor.style.transform = 'rotate(-135deg)'; 
-        customCursor.style.opacity = '1';
-        return;
-      }
+  const clickable = e.target.closest(
+    'a, button, input, select, textarea, label, [role="button"], [data-clickable]'
+  );
 
-      // 3. EXPANDED SLIDES OPEN VIEW STATE
-      const rect = activeCard.getBoundingClientRect();
-      const relativeX = e.clientX - rect.left;
-      isMouseOnLeft = (relativeX < rect.width / 2);
+  if (clickable) {
+    customCursor.style.opacity = '0';
+    return;
+  }
 
-      const pages = activeCard.querySelectorAll('.case-page');
-      const currentStep = parseInt(activeCard.getAttribute('data-current-step') || '0');
+  // --------------------------------------------------
+  // 2. NORMAL PAGE STATE
+  // --------------------------------------------------
 
-      if (isMouseOnLeft) {
-        customCursor.textContent = '<';
-        customCursor.style.transform = 'rotate(0deg)'; 
-        customCursor.style.opacity = (currentStep === 0) ? '0.15' : '1';
-      } else {
-        customCursor.textContent = '>';
-        customCursor.style.transform = 'rotate(0deg)'; 
-        customCursor.style.opacity = (currentStep === pages.length - 1) ? '0.15' : '1';
-      }
-    });
+  if (!activeCard) {
+    customCursor.textContent = '>';
+    customCursor.style.transform = 'rotate(-135deg)';
+    customCursor.style.opacity = '1';
+    return;
+  }
+
+  // --------------------------------------------------
+  // 3. EXPANDED CASE STUDY
+  // --------------------------------------------------
+
+  const rect = activeCard.getBoundingClientRect();
+
+  const relativeX = e.clientX - rect.left;
+  isMouseOnLeft = relativeX < rect.width / 2;
+
+  const pages = activeCard.querySelectorAll('.case-page');
+
+  const currentStep = parseInt(
+    activeCard.getAttribute('data-current-step') || '0'
+  );
+
+  if (isMouseOnLeft) {
+
+    customCursor.textContent = '<';
+    customCursor.style.transform = 'rotate(0deg)';
+
+    // First slide: no previous page
+    customCursor.style.opacity =
+      currentStep === 0 ? '0.15' : '1';
+
+  } else {
+
+    customCursor.textContent = '>';
+    customCursor.style.transform = 'rotate(0deg)';
+
+    // Last slide: no next page
+    customCursor.style.opacity =
+      currentStep === pages.length - 1 ? '0.15' : '1';
+  }
+});
 
     document.addEventListener('mouseleave', () => {
       if (customCursor) customCursor.style.opacity = '0';
